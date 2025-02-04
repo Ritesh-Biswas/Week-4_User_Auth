@@ -39,3 +39,12 @@ def student_dashboard(request):
     if request.session.get("user_role") != "student":
         return redirect("login")
     return render(request, "student_dashboard.html")
+
+def admin_student_list(request):
+    # Check if the user is logged in as admin
+    if request.session.get("user_role") != "admin":
+        return redirect("login")
+
+    # Fetch all students from the database
+    students = Student.objects.all()
+    return render(request, "admin_student_list.html", {"students": students})
