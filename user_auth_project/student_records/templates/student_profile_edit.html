@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+</head>
+<body>
+    <h1>Edit Profile</h1>
+    <a href="{% url 'student_dashboard' %}">Back to Dashboard</a>
+    <form method="post">
+        {% csrf_token %}
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="{{ student.name }}" required><br>
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" value="{{ student.email }}" required><br>
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password"><br>
+
+        <button type="submit">Update Profile</button>
+    </form>
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>

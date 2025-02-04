@@ -12,6 +12,7 @@ def login_view(request):
             admin = Admin.objects.get(username=username, password=password)
             request.session["user_role"] = "admin"
             request.session["user_id"] = admin.id
+            print("Admin logged in, session:", request.session.items())
             return redirect("admin_dashboard")  # Redirect to admin dashboard
         except Admin.DoesNotExist:
             pass
@@ -19,13 +20,15 @@ def login_view(request):
         # Check if the user is a student
         try:
             student = Student.objects.get(username=username, password=password)
+            request.session["username"] = student.username  # Set the username here!
             request.session["user_role"] = "student"
             request.session["user_id"] = student.id
-            return redirect("student_dashboard")  # Redirect to student dashboard
+            print("Student logged in, session:", list(request.session.items()))
+            return redirect("student_dashboard")
         except Student.DoesNotExist:
             pass
 
-        # Invalid credentials
+        # If authentication fails:
         return render(request, "login.html", {"error": "Invalid username or password."})
 
     return render(request, "login.html")
@@ -113,3 +116,40 @@ def admin_student_delete(request, student_id):
     student.delete()
     messages.success(request, "Student deleted successfully!")
     return redirect("admin_student_list")
+
+
+def student_profile_edit(request):
+    # Print the session items for debugging
+    print("In student_profile_edit, session:", list(request.session.items()))
+    
+    # Check if the user is logged in as student
+    if request.session.get("user_role") != "student":
+        print("User is not recognized as student, redirecting to login.")
+        return redirect("login")
+    
+    username = request.session.get("username")
+    if not username:
+        print("No username found in session, redirecting to login.")
+        return redirect("login")
+    
+    try:
+        student = Student.objects.get(username=username)
+    except Student.DoesNotExist:
+        print(f"Student with username {username} not found.")
+        messages.error(request, "Student not found.")
+        return redirect("login")
+    
+    if request.method == "POST":
+        student.name = request.POST.get("name")
+        student.email = request.POST.get("email")
+        password = request.POST.get("password")
+        if password:
+            student.password = password
+        student.save()
+        messages.success(request, "Profile updated successfully!")
+        return redirect("student_profile_edit")
+    
+    return render(request, "student_profile_edit.html", {"student": student})
+
+
+
