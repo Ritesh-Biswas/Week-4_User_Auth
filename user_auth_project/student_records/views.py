@@ -73,3 +73,26 @@ def admin_student_add(request):
             return redirect("admin_student_list")
 
     return render(request, "admin_student_add.html")
+
+def admin_student_edit(request, student_id):
+    # Check if the user is logged in as admin
+    if request.session.get("user_role") != "admin":
+        return redirect("login")
+
+    # Fetch the student record by ID
+    try:
+        student = Student.objects.get(id=student_id)
+    except Student.DoesNotExist:
+        messages.error(request, "Student not found.")
+        return redirect("admin_student_list")
+
+    if request.method == "POST":
+        student.name = request.POST.get("name")
+        student.section = request.POST.get("section")
+        student.email = request.POST.get("email")
+        # Note: Username and password are not updated via this form
+        student.save()
+        messages.success(request, "Student updated successfully!")
+        return redirect("admin_student_list")
+
+    return render(request, "admin_student_edit.html", {"student": student})
