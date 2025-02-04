@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect # type: ignore
 from student_records.models import Admin, Student
+from django.contrib import messages # type: ignore
 
 def login_view(request):
     if request.method == "POST":
@@ -48,3 +49,27 @@ def admin_student_list(request):
     # Fetch all students from the database
     students = Student.objects.all()
     return render(request, "admin_student_list.html", {"students": students})
+
+
+def admin_student_add(request):
+    # Check if the user is logged in as admin
+    if request.session.get("user_role") != "admin":
+        return redirect("login")
+
+    if request.method == "POST":
+        username = request.POST.get("username")
+        name = request.POST.get("name")
+        section = request.POST.get("section")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+
+        # Check if username already exists
+        if Student.objects.filter(username=username).exists():
+            messages.error(request, "A student with this username already exists.")
+        else:
+            # Create a new student
+            Student.objects.create(username=username, name=name, section=section, email=email, password=password)
+            messages.success(request, "Student added successfully!")
+            return redirect("admin_student_list")
+
+    return render(request, "admin_student_add.html")
