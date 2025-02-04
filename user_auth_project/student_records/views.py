@@ -152,4 +152,16 @@ def student_profile_edit(request):
     return render(request, "student_profile_edit.html", {"student": student})
 
 
+def student_view_others(request):
+    if request.session.get("user_role") != "student":
+        return redirect("login")
+
+    # Get the current student (the logged-in student)
+    student_id = request.session.get("user_id")
+    current_student = Student.objects.get(id=student_id)
+
+    # Retrieve all students, excluding the current student
+    students = Student.objects.exclude(id=current_student.id)
+    
+    return render(request, "student_view_others.html", {"students": students})
 
