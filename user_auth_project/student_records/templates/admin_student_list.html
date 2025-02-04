@@ -28,7 +28,7 @@
                     <td>{{ student.email }}</td>
                     <td>
                         <a href="{% url 'admin_student_edit' student.id %}">Edit</a> |
-                        {% comment %} <a href="{% url 'admin_student_delete' student.id %}">Delete</a> {% endcomment %}
+                        <a href="{% url 'admin_student_delete' student.id %}" onclick="return confirm('Are you sure you want to delete this student?');">Delete</a>
                     </td>
                 </tr>
             {% empty %}
